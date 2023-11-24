@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "indengsvc"
+version = "0.0.1"
+description = "indengsvc API"
+authors = ["Maksym Skorupskyi <maxnrg@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.101.1"
+pytest = "^7.3.2"
+uvicorn = "^0.24.0"
+gunicorn = "^20.1.0"
+SQLAlchemy = "1.4.50"
+psycopg2 = "^2.9.9"
+requests = "^2.0.31"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
