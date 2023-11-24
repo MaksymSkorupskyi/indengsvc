@@ -2,17 +2,7 @@ from fastapi import HTTPException
 
 from app.dao.database import get_relativity_db_session
 
-
-def get_users():
-    with get_relativity_db_session() as session:
-        users = session.execute("SELECT * FROM employees").all()
-
-    return users
-
-
-def get_user(user_id: str):
-    with get_relativity_db_session() as session:
-        query = f"""
+BASIC_QUERY = """
         SELECT 
           employees.id,
           employees.email,
@@ -33,6 +23,20 @@ def get_user(user_id: str):
           teams
         ON
           employees.team_id = teams.id
+        """
+
+
+def get_users():
+    with get_relativity_db_session() as session:
+        users = session.execute(BASIC_QUERY).all()
+
+    return users
+
+
+def get_user(user_id: str):
+    with get_relativity_db_session() as session:
+        query = f"""
+        {BASIC_QUERY}
         WHERE 
           employees.id = {user_id}
         """
