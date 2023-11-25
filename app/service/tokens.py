@@ -12,7 +12,21 @@ auth = os.environ.get("HTTP_AUTHORIZATION")
 headers = {"Authorization": auth}
 
 
-def get_employees_tokens():
+def update_employees_data() -> list[dict]:
+    # Fetch the employee data from legacy endpoint
+    df: pd.DataFrame = get_employees_tokens()
+
+    employees: list[dict] = [
+        get_employee_by_token(row["Token"]) for _, row in df.iterrows()
+    ]
+
+    create_users_table()
+    write_employees_to_db(employees)
+
+    return employees
+
+
+def get_employees_tokens() -> pd.DataFrame:
     if not url:
         raise HTTPException(400, "Employees endpoint URL is not provided!")
 
@@ -37,16 +51,8 @@ def get_employees_tokens():
     # Delete the zip file
     os.remove(zip_file_path)
 
-    # Read the Excel file
-    df = pd.read_excel(employees_excel_table_name)
-
-    employees: list[dict] = [
-        get_employee_by_token(row["Token"]) for _, row in df.iterrows()
-    ]
-
-    write_employees_to_db(employees)
-
-    return employees
+    # Return the Excel file as Pandas DataFrame
+    return pd.read_excel(employees_excel_table_name)
 
 
 def get_employee_by_token(token: str):
@@ -58,6 +64,27 @@ def get_employee_by_token(token: str):
         raise HTTPException(response.status_code)
 
     return response.json()
+
+
+def create_users_table():
+    query = """
+    CREATE TABLE IF NOT EXISTS public.users
+    (
+        id          INTEGER NOT NULL primary key,
+        email       varchar(255),
+        phone       varchar(255),
+        full_name   varchar(255),
+        first_name  varchar(255),
+        last_name   varchar(255),
+        gender      varchar(255),
+        birth       DATE
+    );
+
+    ALTER TABLE public.users
+        OWNER TO jbeambxm;
+    """
+    with get_relativity_db_session() as session:
+        session.execute(query)
 
 
 def write_employees_to_db(employees: list[dict]):

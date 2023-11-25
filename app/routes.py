@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.responses import RedirectResponse
 
-from app.service.tokens import get_employees_tokens
+from app.service.tokens import update_employees_data
 from app.service.users import get_user, get_users
 
 logger = logging.getLogger(__name__)
@@ -114,8 +114,8 @@ def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(secur
     status_code=200,
     summary="Update Employees data from legacy API in `users` table",
 )
-async def get_employees_tokens_v1():
-    get_employees_tokens()
+async def update_employees_data_v1():
+    update_employees_data()
 
     return (
         "Employees data from legacy API "
@@ -139,5 +139,5 @@ async def get_users_all_v1():
     status_code=200,
     summary="Get user by user_id",
 )
-async def get_employees_v1(user_id: str):
+async def get_user_by_id_v1(user_id: str):
     return get_user(user_id)

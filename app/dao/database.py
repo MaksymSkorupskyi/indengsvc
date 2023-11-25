@@ -66,22 +66,3 @@ def get_relativity_db_session() -> SessionLocal:
     return thread_local.db_session
 
 
-def create_users_table():
-    query = """
-    CREATE TABLE IF NOT EXISTS public.users
-    (
-        id          INTEGER NOT NULL primary key,
-        email       varchar(255),
-        phone       varchar(255),
-        full_name   varchar(255),
-        first_name  varchar(255),
-        last_name   varchar(255),
-        gender      varchar(255),
-        birth       DATE
-    );
-
-    ALTER TABLE public.users
-        OWNER TO jbeambxm;
-    """
-    with get_relativity_db_session() as session:
-        session.execute(query)
