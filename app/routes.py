@@ -1,6 +1,16 @@
 """indengsvc API
 
+This file defines the routes for the indengsvc API.
+It includes endpoints for manipulating Indengsvc Users/Employees and Teams.
+The API requires authentication using HTTP Basic authentication.
+The API documentation is available in Swagger and ReDoc formats.
+
+The API endpoints are as follows:
+- GET /v1/employees: Update Employees data from a legacy API in the `users` table.
+- GET /v1/users: Get all users.
+- GET /v1/users/{user_id}: Get a specific user by user_id.
 """
+
 import logging
 import os
 import secrets
@@ -127,6 +137,7 @@ def authenticate_user(
 
 
 # Define API endpoints with input validation and authentication
+
 @api_app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
