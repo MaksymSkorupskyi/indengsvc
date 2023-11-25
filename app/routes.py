@@ -2,10 +2,10 @@
 
 """
 import logging
+import os
 import secrets
-from typing import Annotated
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
@@ -17,10 +17,21 @@ from app.service.users import get_user, get_users
 
 logger = logging.getLogger(__name__)
 
+# Load credentials from environment variables
+USERNAME = os.environ.get("USERNAME")
+PASSWORD = os.environ.get("PASSWORD")
+
+if not USERNAME:
+    raise RuntimeError("USERNAME is not specified!")
+
+if not PASSWORD:
+    raise RuntimeError("PASSWORD is not specified!")
+
+# Set up API documentation metadata
 tags_metadata = [
     {
         "name": "indengsvc API",
-        "description": "Manipulate with indengsvc Employees and Teams",
+        "description": "Manipulate with Indengsvc Users/Employees and Teams",
     },
 ]
 
@@ -55,6 +66,7 @@ api_app = FastAPI(
 security = HTTPBasic()
 
 
+# Set up exception handling
 @api_app.exception_handler(Exception)
 async def exception_handler(request: Request, e: Exception):
     unique_event_id = secrets.token_hex(8)
@@ -68,6 +80,7 @@ async def exception_handler(request: Request, e: Exception):
     )
 
 
+# Set up custom OpenAPI documentation
 def custom_openapi():
     if api_app.openapi_schema:
         return api_app.openapi_schema
@@ -86,6 +99,7 @@ def custom_openapi():
 
 api_app.openapi = custom_openapi
 
+# Set up CORS middleware
 api_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -95,17 +109,28 @@ api_app.add_middleware(
 )
 
 
+# Define authentication function
+def authenticate_user(
+    credentials: HTTPBasicCredentials = Depends(security),
+) -> str:
+    correct_username = secrets.compare_digest(credentials.username, USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, PASSWORD)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+
 # -- API Definition starts here ---------------------------------------------
 
 
+# Define API endpoints with input validation and authentication
 @api_app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
-
-
-@api_app.get("/users/me")
-def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
-    return {"username": credentials.username, "password": credentials.password}
 
 
 @api_app.get(
@@ -114,7 +139,7 @@ def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(secur
     status_code=200,
     summary="Update Employees data from legacy API in `users` table",
 )
-async def update_employees_data_v1():
+async def update_employees_data_v1(username: str = Depends(authenticate_user)):
     update_employees_data()
 
     return (
@@ -129,7 +154,7 @@ async def update_employees_data_v1():
     status_code=200,
     summary="Get all users",
 )
-async def get_users_all_v1():
+async def get_users_all_v1(username: str = Depends(authenticate_user)):
     return get_users()
 
 
@@ -139,5 +164,5 @@ async def get_users_all_v1():
     status_code=200,
     summary="Get user by user_id",
 )
-async def get_user_by_id_v1(user_id: str):
+async def get_user_by_id_v1(user_id: str, username: str = Depends(authenticate_user)):
     return get_user(user_id)
