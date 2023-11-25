@@ -42,6 +42,10 @@ export LEGACY_ENDPOINT_EMPLOYEES="https://indengsvc-1-u8804147.deta.app/employee
 export HTTP_AUTHORIZATION="<auth_string>"
 ```
 
+## Additional Information
+The API supports HTTP Basic Authentication. 
+Use the provided username and password in your requests.
+
 
 ## Usage
 
@@ -66,6 +70,9 @@ Response:
 ```text
 "Employees data from legacy API has been successfully updated in `users` table"
 ```
+* Note: 
+Make sure that you've fetch the last updated data from the Legacy API before calling 
+folowing endpoints:
 
 #### Get all users:
 ```bash
