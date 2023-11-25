@@ -22,6 +22,9 @@ poetry config virtualenvs.in-project true
 poetry install
 ```
 
+## Additional Information
+The API supports HTTP Basic Authentication. 
+
 
 ## DEV setup
 
@@ -31,6 +34,7 @@ You need to set environment variables:
 - `DB_CONN` - Connection URI to the database 
 - `LEGACY_ENDPOINT_EMPLOYEES` - Legacy API endpoint 
 - `HTTP_AUTHORIZATION` - HTTP Basic Auth 
+##### Note: For demo it's ok to use Enviroment variables , but for production we should use the secrets.
 
 ### Database environment variables setup
 ```bash
@@ -41,10 +45,6 @@ export DB_CONN=postgresql://${USER}:<password>@localhost:5432/jbeambxm
 export LEGACY_ENDPOINT_EMPLOYEES="https://indengsvc-1-u8804147.deta.app/employees"
 export HTTP_AUTHORIZATION="<auth_string>"
 ```
-
-## Additional Information
-The API supports HTTP Basic Authentication. 
-Use the provided username and password in your requests.
 
 
 ## Usage

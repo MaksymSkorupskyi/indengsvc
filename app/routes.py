@@ -181,4 +181,10 @@ async def get_users_all_v1(username: str = Depends(authenticate_user)):
 )
 async def get_user_by_id_v1(user_id: str, username: str = Depends(authenticate_user)):
     """Get user by user_id."""
+    # Validate and sanitize user_id
+    if not user_id.isnumeric():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid user_id: {user_id}",
+        )
     return get_user(user_id)
