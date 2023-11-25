@@ -3,11 +3,13 @@
 """
 import logging
 import secrets
+from typing import Annotated
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.responses import RedirectResponse
 
 from app.service.tokens import get_employees_tokens
@@ -49,6 +51,8 @@ DESCRIPTION = """
 api_app = FastAPI(
     openapi_tags=tags_metadata,
 )
+
+security = HTTPBasic()
 
 
 @api_app.exception_handler(Exception)
@@ -97,6 +101,11 @@ api_app.add_middleware(
 @api_app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
+
+
+@api_app.get("/users/me")
+def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
+    return {"username": credentials.username, "password": credentials.password}
 
 
 @api_app.get(

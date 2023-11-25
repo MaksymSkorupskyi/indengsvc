@@ -1,20 +1,25 @@
+import os
+from zipfile import ZipFile
+
 import requests
+from fastapi import HTTPException
 
-url = "https://indengsvc-1-u8804147.deta.app/employees"
-
-headers = {"Authorization": "Basic YWRtaW46cGFzc3dvcmQ="}
+url = os.environ.get("LEGACY_ENDPOINT_EMPLOYEES")
+auth = os.environ.get("HTTP_AUTHORIZATION")
+headers = {"Authorization": auth}
 
 
 def get_employees_tokens():
+    if not url:
+        raise HTTPException(400, "Employees endpoint URL is not provided!")
+
     response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        with open("tokens.xlsx.zip", "wb") as f:
-            f.write(response.content)
-    else:
-        print(f"Error: {response.status_code}")
+    if response.status_code != 200:
+        raise HTTPException(response.status_code)
 
-    import zipfile
+    with open("tokens.xlsx.zip", "wb") as f:
+        f.write(response.content)
 
-    with zipfile.ZipFile("tokens.xlsx.zip", "r") as z:
+    with ZipFile("tokens.xlsx.zip", "r") as z:
         z.extractall()
