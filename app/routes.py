@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.responses import RedirectResponse
 
-from app.service.tokens import update_employees_data
+from app.service.employees import update_employees_data
 from app.service.users import get_user, get_users
 
 logger = logging.getLogger(__name__)
