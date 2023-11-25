@@ -1,8 +1,6 @@
 import json
 import os
 import threading
-from contextlib import contextmanager
-from functools import wraps
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,43 +36,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base(bind=engine)
 
 
-@contextmanager
-def session_scope():
-    """
-    Provide a transactional scope around a series of operations.
-    """
-    session = SessionLocal()
-    try:
-        yield session
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
-
-
-def provide_session():
-    """
-    Provide a db session for functions
-    """
-    with session_scope() as session:
-        return session
-
-
-def provide_session_as_function_parameter(f):
-    """
-    Provide a db session for functions as parameter.
-    """
-
-    @wraps(f)
-    def session_scoped(*args, **kwargs):
-        with session_scope() as session:
-            return f(*args, db_session=session, **kwargs)
-
-    return session_scoped
-
-
 def get_relativity_db_session() -> SessionLocal:
     """Retrieve or create a thread-specific database session.
 
@@ -103,3 +64,24 @@ def get_relativity_db_session() -> SessionLocal:
         thread_local.db_session = SessionLocal()
 
     return thread_local.db_session
+
+
+def create_users_table():
+    query = """
+    CREATE TABLE IF NOT EXISTS public.users
+    (
+        id          INTEGER NOT NULL primary key,
+        email       varchar(255),
+        phone       varchar(255),
+        full_name   varchar(255),
+        first_name  varchar(255),
+        last_name   varchar(255),
+        gender      varchar(255),
+        birth       DATE
+    );
+
+    ALTER TABLE public.users
+        OWNER TO jbeambxm;
+    """
+    with get_relativity_db_session() as session:
+        session.execute(query)

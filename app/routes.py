@@ -112,12 +112,15 @@ def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(secur
     "/v1/employees",
     tags=["Employees"],
     status_code=200,
-    summary="Download the file tokens.xlsx.zip - archived Excel spreadsheet with employee IDs and API tokens",
+    summary="Update Employees data from legacy API in `users` table",
 )
-def get_employees_tokens_v1():
+async def get_employees_tokens_v1():
     get_employees_tokens()
 
-    return "Employees tokens have been downloaded"
+    return (
+        "Employees data from legacy API "
+        "has been successfully updated in `users` table"
+    )
 
 
 @api_app.get(

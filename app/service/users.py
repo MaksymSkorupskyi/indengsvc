@@ -5,21 +5,28 @@ from app.dao.database import get_relativity_db_session
 BASIC_QUERY = """
         SELECT 
           employees.id,
-          employees.email,
---           employees.phone,
---           employees.full_name,
---           employees.first_name,
---           employees.last_name,
---           employees.gender,
---           employees.birth,
+          COALESCE(employees.email, users.email)    AS email,
+          users.phone,
+          users.full_name,
+          users.first_name,
+          users.last_name,
+          users.gender,
+          users.birth,
           employees.reports,
           employees.position,
           employees.hired,
           employees.salary,
           teams.team_name    AS team
+
         FROM 
           employees 
-        JOIN 
+
+        LEFT JOIN 
+          users
+        USING
+          (id)
+
+        LEFT JOIN 
           teams
         ON
           employees.team_id = teams.id
