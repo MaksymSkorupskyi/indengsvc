@@ -15,6 +15,7 @@ from starlette.responses import RedirectResponse
 from app.service.employees import update_employees_data
 from app.service.users import get_user, get_users
 
+# Set up logging
 logger = logging.getLogger(__name__)
 
 # Load credentials from environment variables
@@ -59,9 +60,7 @@ DESCRIPTION = """
 """
 
 # Create an application instance
-api_app = FastAPI(
-    openapi_tags=tags_metadata,
-)
+api_app = FastAPI(openapi_tags=tags_metadata)
 
 security = HTTPBasic()
 
@@ -103,8 +102,8 @@ api_app.openapi = custom_openapi
 api_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET"],
+    allow_headers=["Authorization"],
     allow_credentials=True,
 )
 
