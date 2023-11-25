@@ -78,6 +78,12 @@ security = HTTPBasic()
 # Set up exception handling
 @api_app.exception_handler(Exception)
 async def exception_handler(request: Request, e: Exception):
+    """Handles exceptions that occur during request processing.
+
+    :param request: The incoming request object.
+    :param e: The exception that occurred.
+    :return: A JSON response containing the exception details and a unique event ID.
+    """
     unique_event_id = secrets.token_hex(8)
     logger.exception(f"Unhandled exception (unique_event_id={unique_event_id})")
     return JSONResponse(
@@ -122,6 +128,13 @@ api_app.add_middleware(
 def authenticate_user(
     credentials: HTTPBasicCredentials = Depends(security),
 ) -> str:
+    """Authenticates a user using basic authentication credentials.
+
+    :param credentials: The HTTPBasicCredentials object
+                        containing the username and password provided by the user.
+    :type credentials: starlette.authentication.AuthenticationBackend
+
+    :return: The username"""
     correct_username = secrets.compare_digest(credentials.username, USERNAME)
     correct_password = secrets.compare_digest(credentials.password, PASSWORD)
     if not (correct_username and correct_password):
@@ -138,6 +151,7 @@ def authenticate_user(
 
 # Define API endpoints with input validation and authentication
 
+
 @api_app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
@@ -150,6 +164,9 @@ def root():
     summary="Update Employees data from legacy API in `users` table",
 )
 async def update_employees_data_v1(username: str = Depends(authenticate_user)):
+    """Update Employees data from legacy API in `users` table.
+
+    :param username: The username of the authenticated"""
     update_employees_data()
 
     return (
@@ -165,6 +182,10 @@ async def update_employees_data_v1(username: str = Depends(authenticate_user)):
     summary="Get all users",
 )
 async def get_users_all_v1(username: str = Depends(authenticate_user)):
+    """Get all users.
+    :param username: The username of the authenticated user calling the API.
+    :return: A list of all users.
+    """
     return get_users()
 
 
@@ -175,4 +196,9 @@ async def get_users_all_v1(username: str = Depends(authenticate_user)):
     summary="Get user by user_id",
 )
 async def get_user_by_id_v1(user_id: str, username: str = Depends(authenticate_user)):
+    """Get user by user_id.
+    :param user_id: The ID of the user to retrieve.
+    :param username: The username of the authenticated user. This parameter is optional.
+    :return: The user object with the specified ID.
+    """
     return get_user(user_id)
