@@ -64,5 +64,3 @@ def get_relativity_db_session() -> SessionLocal:
         thread_local.db_session = SessionLocal()
 
     return thread_local.db_session
-
-
