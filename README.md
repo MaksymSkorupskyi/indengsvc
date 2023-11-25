@@ -34,9 +34,9 @@ You need to set environment variables:
 - `DB_CONN` - Connection URI to the database 
 - `LEGACY_ENDPOINT_EMPLOYEES` - Legacy API endpoint 
 - `HTTP_AUTHORIZATION` - HTTP Basic Auth 
-##### Note: For demo it's ok to use Enviroment variables , but for production we should use the secrets.
+##### Note: For demo it's ok to use Enviroment variables, but for production we must use secrets.
 
-### Database environment variables setup
+### Environment variables setup
 ```bash
 export USERNAME="<username>"
 export PASSWORD="<password>"
